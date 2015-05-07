@@ -1,0 +1,39 @@
+{ 
+  "graph" : { 
+  "title" : "Mount", 
+  "type" : "bar", 
+  "refreshEveryNSeconds" : 300, 
+  "datasequences" : [ 
+      {      "title": "Free", 
+            "datapoints" : [ 
+               { "title" : "14:11", "value" : 1.28117e+10}, 
+             ] 
+      }, 
+      {      "title": "Audio", 
+            "datapoints" : [ 
+               { "title" : "14:11", "value" : 1.03509e+08}, 
+             ] 
+      }, 
+      {      "title": "Documents", 
+            "datapoints" : [ 
+               { "title" : "14:11", "value" : 7.83029e+06}, 
+             ] 
+      }, 
+      {      "title": "Movies", 
+            "datapoints" : [ 
+               { "title" : "14:11", "value" : 8.63666e+09}, 
+             ] 
+      }, 
+      {      "title": "Programs", 
+            "datapoints" : [ 
+               { "title" : "14:11", "value" : 3.29573e+08}, 
+             ] 
+      }, 
+      {      "title": "Games", 
+            "datapoints" : [ 
+               { "title" : "14:11", "value" : 5.83976e+08}, 
+             ] 
+      } 
+  ] 
+  } 
+} 
