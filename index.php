@@ -3,9 +3,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     
-    <link href="http://code.jquery.com/ui/1.10.4/themes/dark-hive/jquery-ui.css" rel="stylesheet">
+    <link href="http://code.jquery.com/ui/1.10.4/themes/dark-hive/jquery-ui.css" rel="stylesheet" />
 	<script src="http://code.jquery.com/jquery-1.11.3.js"></script>
 	<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
+    <link href="src/style.css" rel="stylesheet" />
   
     
     <?php 
@@ -177,85 +179,6 @@
 	
 	</script>
     
-    
-	<style>
-		body {
-			background-color: #333;
-    		background-size: 71px 71px;
-			color: #000;
-			overflow: hidden;
-			font-family: Helvetica, Arial, sans-serif;
-		}
-		
-		.box {
-			position: absolute; 
-			float: left;
-			
-			top: 1px; 
-			left: 1px;
-			
-			width: 273px; 
-			height: 273px;
-			
-			background: #45484d;
-			background: -moz-linear-gradient(top, #45484d 0%, #000000 100%);
-			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000));
-			background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%);
-			background: -o-linear-gradient(top, #45484d 0%,#000000 100%);
-			background: -ms-linear-gradient(top, #45484d 0%,#000000 100%);
-			background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
-			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 );
-	
-			border-radius: 10px;
-			
-			color: #FFF;
-			
-			padding: 5px;
-		}
-		
-		#settings-triangle {
-			position: absolute;
-			left: 0px;
-			top: 0px;
-			width: 0;
-			height: 0;
-			border-top: 72px solid #111;
-			border-right: 72px solid transparent;
-			z-index: 100;
-			opacity: 0.9;
-		}
-		
-		#settings-triangle img {
-			cursor: pointer;	
-		}
-		
-		.clock_in_checkout {
-			position: absolute; 
-			top: 50%; 
-			left: 50%; 
-			-moz-transform: translateX(-50%) translateY(-50%); 
-			-webkit-transform: translateX(-50%) translateY(-50%); 
-			transform: translateX(-50%) translateY(-50%); 
-			color: #FFF; 
-			font-size: 80px;
-			border: 2px solid #222;
-			padding-left: 10px;	
-			padding-right: 10px;
-		}
-		
-		#footer {
-			position: absolute;
-			bottom: 0px;
-			left: 0px;
-			right: 0px;
-			height: 72px;
-			margin-bottom: -72px;
-			background-color: #111;
-			z-index: 100;
-			opacity: 0.9;
-		}
-	</style>
-    
 	<title>WebStatus</title>
 
 </head>
@@ -282,7 +205,7 @@
 								break;
 				case "json": 	$obj = new chart("sample/load.json");
 								echo $obj->drawChart();
-								echo $obj;
+								//echo $obj;
 								break;
 			}
 			

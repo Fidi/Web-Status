@@ -92,8 +92,22 @@
 		
 		
 		public function drawChart($width, $height) {
-			echo $this->getGraphTitle()	. '<br />';
-			echo $this->getGraphType()	. '<br />';
+			$rand = rand();
+			echo '	<canvas class="chart" id="chart' . $rand . '" >
+						Your browser does not support the HTML5 canvas tag.
+					</canvas><br/>';
+					
+			// caption
+			echo '	<script>
+						var c = document.getElementById("chart' . $rand . '");
+						c.setAttribute("width", $("#chart' . $rand . '").css("width"));
+						c.setAttribute("height", $("#chart' . $rand . '").css("height"));
+						var ctx = c.getContext("2d");
+						ctx.fillStyle = "#FFF";
+						ctx.font = "20px Helvetica";
+						ctx.fillText("' . $this->getGraphTitle() . '", 5, 25);
+					</script>';
+			//echo $this->getGraphType()	. '<br />';
 		}
 	}
 ?>
