@@ -76,13 +76,13 @@ body {
 	box-shadow: inset 0px 0px 10px 1px rgba(0,0,0,0.75);
 }
 
-#footer {
+#settings-menu {
 	position: absolute;
 	bottom: 0px;
-	left: 0px;
 	right: 0px;
-	height: 72px;
-	margin-bottom: -72px;
+	top: 0px;
+	width: 72px;
+	margin-right: -72px;
 	background-color: #111;
 	z-index: 100;
 	opacity: 0.9;

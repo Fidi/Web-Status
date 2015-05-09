@@ -138,8 +138,8 @@
 		 
 		 
 		 function enterSettingsMenu() {
-				$('#footer').animate({
-					'margin-bottom': '0px'
+				$('#settings-menu').animate({
+					'margin-right': '0px'
 				}, 500);
 				//$('#settings').click(leaveSettingsMenu());
 				$("#settings-triangle").unbind("click");
@@ -147,8 +147,8 @@
 		};
 		
 		function leaveSettingsMenu() {
-				$('#footer').animate({
-					'margin-bottom': '-72px'
+				$('#settings-menu').animate({
+					'margin-right': '-72px'
 				}, 500);
 				//$('#settings').click(enterSettingsMenu());
 				$("#settings-triangle").unbind("click");
@@ -176,6 +176,121 @@
 				$("body").append(element);
 			});
 		}
+		
+		
+		function showClock() {
+            var c = document.getElementById('analog_clock');
+
+			var canvasWidth = $("#analog_clock").css("width").replace(/[^-\d\.]/g, '');
+			var canvasHeight = $("#analog_clock").css("height").replace(/[^-\d\.]/g, '');
+			
+			var date = new Date;
+            var angle;
+            var secHandLength = (Math.min(canvasWidth, canvasHeight) / 2) - 5;
+			
+			// update canvas in case of size change
+			c.setAttribute("width", canvasWidth);
+			c.setAttribute("height", canvasHeight);
+			
+			var ctx = c.getContext('2d');
+			
+            // clear and repaint
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);   
+			
+			
+			// get times
+			var hour = date.getHours();
+			var min = date.getMinutes();
+			var sec = date.getSeconds();
+			var ampm = hour >= 12 ? 'PM' : 'AM';
+			
+			
+			// hour marks
+			for (var i = 0; i < 12; i++) {
+				angle = (i - 3) * (Math.PI * 2) / 12;
+				ctx.lineWidth = 1.2; 
+				ctx.beginPath();
+				var x1 = (canvasWidth / 2) + Math.cos(angle) * (secHandLength);
+				var y1 = (canvasHeight / 2) + Math.sin(angle) * (secHandLength);
+				var x2 = (canvasWidth / 2) + Math.cos(angle) * (secHandLength - (secHandLength / 12));
+				var y2 = (canvasHeight / 2) + Math.sin(angle) * (secHandLength - (secHandLength / 12));
+				ctx.moveTo(x1, y1);
+				ctx.lineTo(x2, y2);
+				ctx.strokeStyle = '#CCC';
+				ctx.stroke();
+			}
+			
+			
+			// second marks
+			for (var i = 0; i < 60; i++) {
+				angle = (i - 3) * (Math.PI * 2) / 60;
+				ctx.lineWidth = 1; 
+				ctx.beginPath();
+				var x1 = (canvasWidth / 2) + Math.cos(angle) * (secHandLength);
+				var y1 = (canvasHeight / 2) + Math.sin(angle) * (secHandLength);
+				var x2 = (canvasWidth / 2) + Math.cos(angle) * (secHandLength - (secHandLength / 30));
+				var y2 = (canvasHeight / 2) + Math.sin(angle) * (secHandLength - (secHandLength / 30));
+				ctx.moveTo(x1, y1);
+				ctx.lineTo(x2, y2);
+				ctx.strokeStyle = '#CCC';
+				ctx.stroke();
+			}
+			
+			
+			
+			// Hours
+			if (Math.min(canvasHeight, canvasWidth) > 200) {
+				ctx.textAlign = "center";     
+				ctx.fillStyle = "#fc6b00";
+				ctx.font = "bold 15px Helvetica";
+				ctx.fillText(ampm, canvasWidth/2, secHandLength*3/5);  
+			}
+
+			angle = ((Math.PI * 2) * ((hour * 5 + (min / 60) * 5) / 60)) - ((Math.PI * 2) / 4);
+			ctx.lineWidth = 5;
+			ctx.beginPath();
+			ctx.moveTo(canvasWidth / 2, canvasHeight / 2); 
+			ctx.lineTo((canvasWidth / 2 + Math.cos(angle) * secHandLength / 1.5), canvasHeight / 2 + Math.sin(angle) * secHandLength / 1.5);
+			ctx.strokeStyle = '#CCC';
+			ctx.lineCap = 'round';
+			ctx.shadowColor = '#000';
+      		ctx.shadowBlur = 2;
+      		ctx.shadowOffsetX = 1;
+      		ctx.shadowOffsetY = 1;
+			ctx.stroke();
+			
+			
+			// Minutes
+			angle = ((Math.PI * 2) * (min / 60)) - ((Math.PI * 2) / 4);
+			ctx.lineWidth = 5;
+			ctx.beginPath();
+			ctx.moveTo(canvasWidth / 2, canvasHeight / 2);
+			ctx.lineTo((canvasWidth / 2 + Math.cos(angle) * secHandLength / 1.1), canvasHeight / 2 + Math.sin(angle) * secHandLength / 1.1);
+			ctx.strokeStyle = '#CCC';
+			ctx.lineCap = 'round';
+			ctx.shadowBlur = 0;
+			ctx.shadowOffsetX = 0;
+      		ctx.shadowOffsetY = 0;
+			ctx.stroke();
+			
+			// seconds
+			angle = ((Math.PI * 2) * (sec / 60)) - ((Math.PI * 2) / 4);
+			ctx.lineWidth = 1.5;
+			ctx.beginPath();
+			ctx.moveTo(canvasWidth / 2, canvasHeight / 2);
+			ctx.lineTo((canvasWidth / 2 + Math.cos(angle) * secHandLength), canvasHeight / 2 + Math.sin(angle) * secHandLength);
+			ctx.strokeStyle = '#fc6b00';
+			ctx.stroke();		    
+
+
+			// center dot
+			ctx.beginPath();
+			ctx.arc(canvasWidth / 2, canvasHeight / 2, 2, 0, Math.PI * 2);
+			ctx.lineWidth = 8;
+			ctx.fillStyle = '#fc6b00';
+			ctx.strokeStyle = '#fc6b00';
+			ctx.stroke();
+        }
 	
 	</script>
     
@@ -189,9 +304,9 @@
     	<img src="icons/settings.png" style="position: absolute; top: -62px; left: 10px; width: 25px; height: 25px;" id="settings" />
     </div>
     
-    <div id="footer">
+    <div id="settings-menu">
     	<center>
-        	<img src="icons/add.png" style="height: 32px; width: 32px; margin: 20px;" id="add" />
+        	<img src="icons/add.png" style="height: 32px; width: 32px; margin: 20px;" id="settings-add" />
         </center>
     </div>
 
@@ -201,7 +316,13 @@
 			echo '<div class="box" id="box' . $x . '" style="top: ' . $json->{"box$x"}->top . 'px; left: ' . $json->{"box$x"}->left . 'px; width: ' . $json->{"box$x"}->width . 'px; height: ' . $json->{"box$x"}->height . 'px;">';
 			
 			switch ($json->{"box$x"}->type) {
-				case "time": 	echo '<div class="clock_in_checkout"> </div>'; 
+				case "time": 	if ($json->{"box$x"}->details == "analog") {
+									echo ' 	<div style="margin: 10%; width: 80%; height: 80%; border-radius: 50%; -webkit-box-shadow: inset 0px 0px 10px 1px rgba(0,0,0,0.75); -moz-box-shadow: inset 0px 0px 10px 1px rgba(0,0,0,0.75); box-shadow: inset 0px 0px 10px 1px rgba(0,0,0,0.75);">
+												<canvas id="analog_clock" style="width: 100%; height: 100%;"></canvas>
+											</div>';
+								} else {
+									echo '<div class="clock_in_checkout"> </div>'; 
+								}
 								break;
 				case "json": 	$obj = new chart("sample/load.json");
 								echo $obj->drawChart();
@@ -213,10 +334,23 @@
 		} 
 	?>
     
+    <!--
+    <div class="box" style="position: absolute; bottom: 0px; left: 0px; height: 400px; width: 400px; background-color: #333;">
+    	<div style="margin: 10%; width: 80%; height: 80%; border-radius: 50%; -webkit-box-shadow: inset 0px 0px 10px 1px rgba(0,0,0,0.75); -moz-box-shadow: inset 0px 0px 10px 1px rgba(0,0,0,0.75); box-shadow: inset 0px 0px 10px 1px rgba(0,0,0,0.75);">
+    		<canvas id="watch" style="width: 100%; height: 100%;"></canvas>
+        </div>
+    </div>
+    -->
+    
     
     <script type="text/javascript">
 		$("#settings-triangle").on("click", enterSettingsMenu);
-		$("#add").on("click", addBox);
+		$("#settings-add").on("click", addBox);
+	</script>
+    
+    <script>
+		showClock();
+        setInterval(showClock, 1000);
 	</script>
 
 
