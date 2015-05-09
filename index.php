@@ -208,6 +208,7 @@
 			// hour marks
 			for (var i = 0; i < 12; i++) {
 				angle = (i - 3) * (Math.PI * 2) / 12;
+				secHandLength = Math.sqrt(1/(Math.pow(Math.sin(angle) / (canvasHeight/2), 2) + Math.pow(Math.cos(angle) / (canvasWidth/2), 2))) - 5;
 				ctx.lineWidth = 1.2; 
 				ctx.beginPath();
 				var x1 = (canvasWidth / 2) + Math.cos(angle) * (secHandLength);
@@ -224,6 +225,7 @@
 			// second marks
 			for (var i = 0; i < 60; i++) {
 				angle = (i - 3) * (Math.PI * 2) / 60;
+				secHandLength = Math.sqrt(1/(Math.pow(Math.sin(angle) / (canvasHeight/2), 2) + Math.pow(Math.cos(angle) / (canvasWidth/2), 2))) - 5;
 				ctx.lineWidth = 1; 
 				ctx.beginPath();
 				var x1 = (canvasWidth / 2) + Math.cos(angle) * (secHandLength);
@@ -237,13 +239,14 @@
 			}
 			
 			
+			secHandLength = (Math.min(canvasWidth, canvasHeight) / 2) - 5;
 			
 			// Hours
 			if (Math.min(canvasHeight, canvasWidth) > 200) {
 				ctx.textAlign = "center";     
 				ctx.fillStyle = "#fc6b00";
 				ctx.font = "bold 15px Helvetica";
-				ctx.fillText(ampm, canvasWidth/2, secHandLength*3/5);  
+				ctx.fillText(ampm, canvasWidth/2, canvasHeight/4);  
 			}
 
 			angle = ((Math.PI * 2) * ((hour * 5 + (min / 60) * 5) / 60)) - ((Math.PI * 2) / 4);
