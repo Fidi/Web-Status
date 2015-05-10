@@ -69,8 +69,54 @@
 			return $this->json->graph->datasequences[$sequence]->title;
 		}
 		
-		private function getDatapoint($sequence, $index) {
+		private function getDatapointValue($sequence, $index) {
 			return $this->json->graph->datasequences[$sequence]->datapoints[$index]->value;
+		}
+		
+		
+		
+		
+		private function getMaxValue() {
+			$max = 0;
+			for ($i = 0; $i < $this->getSequenceCount(); $i++) {
+				for ($j = 0; $j < $this->getSequenceLength(); $j++) {
+					$val = $this->getDatapointValue($i, $j);
+					if ($val > $max) { $max = $val; }
+				}		
+			}
+			return $max;
+		}
+		
+		private function getMinValue() {
+			$min = 0;
+			for ($i = 0; $i < $this->getSequenceCount(); $i++) {
+				for ($j = 0; $j < $this->getSequenceLength(); $j++) {
+					$val = $this->getDatapointValue($i, $j);
+					if ($val < $min) { $min = $val; }
+				}		
+			}
+			return $min;
+		}
+		
+		private function getRange() {
+			$maxValue = $this->getYAxisMax();
+			if ($maxValue == self::VALUE_NOT_FOUND) {
+				$maxValue = $this->getMaxValue();
+			}
+			
+			$minValue = $this->getYAxisMin();
+			if ($minValue == self::VALUE_NOT_FOUND) {
+				$minValue = $this->getMinValue();	
+			}
+			
+			return $maxValue - $minValue;
+		}
+		
+		private function getStepSize() {
+			$range = $this->getRange();
+			if ($range <= 5) { return 0.5; }
+			else if ($range <= 10) { return 1; }
+			else { return ceil($range / 10) * 10; }	
 		}
 		
 		function debug_to_console($data) {
@@ -146,6 +192,8 @@
 							var c = document.getElementById("chart' . $rand . '");
 			  				var ctx = c.getContext("2d");
 							
+							canvasWidth = $("#chart' . $rand . '").css("width").replace(/[^-\d\.]/g, "");
+							canvasHeight = $("#chart' . $rand . '").css("height").replace(/[^-\d\.]/g, "");
 							c.setAttribute("width", canvasWidth);
 							c.setAttribute("height", canvasHeight);
 
@@ -187,8 +235,22 @@
 								ctx.beginPath();
 								ctx.moveTo(10, canvasHeight-bottomDistance);
 								ctx.lineTo(canvasWidth-10,canvasHeight-bottomDistance);
-								ctx.stroke();';
+								ctx.stroke();
+								
+								var lineDiff = (canvasHeight - bottomDistance - 50)/10;
+								';
+				for ($i = 1;  $i < 10; $i++) {
+					echo '		ctx.strokeStyle = "#666";
+								ctx.lineWidth = 0.3;
+								ctx.beginPath();
+								ctx.moveTo(50, canvasHeight - bottomDistance - (' . $i . ' * lineDiff));
+								ctx.lineTo(canvasWidth-10, canvasHeight - bottomDistance - (' . $i . ' * lineDiff));
+								//ctx.closePath();
+								ctx.stroke();
+								';	
+				}					
 			};
+			
 			echo '			}
 							';
 			
@@ -196,15 +258,15 @@
 							function drawChart() {
 							';
 			
-			// pie chart
 			if ($this->getGraphType() == "pie") {
+				// pie chart
 				echo '			var radius = Math.min(canvasHeight, canvasWidth)/3;
 								var lineWidth = Math.min(canvasHeight, canvasWidth)/7;
 								';
 				$total = 0;
 				// calculate total number
 				for ($i = 0; $i < $this->getSequenceCount(); $i++) {
-					$total += $this->getDatapoint($i, 0);
+					$total += $this->getDatapointValue($i, 0);
 				}
 				
 				// print each value
@@ -212,12 +274,16 @@
 				$prevangle = 0;
 				for ($i = 0; $i < $this->getSequenceCount(); $i++) {
 					$prevangle = $angle;
-					$angle += ($this->getDatapoint($i,0)*360/$total) * (pi()/180);
+					$angle += round($this->getDatapointValue($i,0)*360/$total) * (pi()/180);
 					echo '		ctx.beginPath();
 								ctx.moveTo(canvasWidth/2,canvasHeight/2);
 								ctx.arc(canvasWidth/2, canvasHeight/2, radius, ' . $prevangle . ', ' . $angle . ');
 								ctx.lineTo(canvasWidth/2,canvasHeight/2);
 								ctx.closePath();
+								ctx.shadowOffsetX = 0;
+								ctx.shadowOffsetY = 0;
+								ctx.shadowBlur = 5;
+								ctx.shadowColor = "#555";
 								ctx.fillStyle = "' . $this->colors[$entr[$i]] .  '";
 								ctx.fill();
 								ctx.lineWidth = 0;
@@ -228,7 +294,7 @@
 									start : ' . $prevangle . ',
 									end : ' . $angle . ',
 									name : "' . $this->getSequenceTitle($i) . '",
-									details : "' . $this->getDatapoint($i,0) . '"
+									details : "' . $this->getDatapointValue($i,0) . '"
 								};
 								sectorsarray.push(x' . ($i+1) . ');
 								';	
@@ -240,13 +306,35 @@
 								ctx.clip();
 								ctx.clearRect(canvasWidth/2 - lineWidth - 1, canvasHeight/2 - lineWidth - 1, lineWidth * 2 + 2, lineWidth * 2 + 2);
 					  ';
+			}  
+			
+			if ($this->getGraphType() == "line") {
+				// line chart
+				$steps = $this->getStepSize();
+				$start = $this->getMinValue();
+				
+				for ($i = 1;  $i < 10; $i++) {
+					echo '		ctx.fillStyle = "#666";
+								ctx.font = "bold 10px Helvetica";
+								ctx.textAlign = "right"; 
+								ctx.fillText("' . number_format($start + ($i * $steps), 1, '.', '') . '", 40, canvasHeight - 25 - (' . $i . ' * (canvasHeight - 80)/10));
+								';	
+				}			
 			}
 			
 			echo '			}
 						};
 						
+												
 						
-						function isInsideSector(point, center, radius, angle1, angle2) {
+						drawChart' . $rand . '();
+						
+						$("#chart' . $rand . '").parent().on( "resize", function( event, ui ) { drawChart' . $rand . '(); } );
+						';
+						
+			
+			if ($this->getGraphType() == "pie") {
+				echo '	function isInsideSector(point, center, radius, angle1, angle2) {
 						  function areClockwise(center, radius, angle, point2) {
 							var point1 = {
 							  x : (center.x + radius) * Math.cos(angle),
@@ -264,13 +352,7 @@
 								 areClockwise(center, radius, angle2, relPoint) &&
 								 (relPoint.x*relPoint.x + relPoint.y*relPoint.y <= radius * radius);
 						}
-												
 						
-						drawChart' . $rand . '();
-						
-						$("#chart' . $rand . '").parent().on( "resize", function( event, ui ) { drawChart' . $rand . '(); } );
-						
-					
 						$("#chart' . $rand . '").mousemove(function (e) {
 							var canvasOffset = $("#chart' . $rand . '").offset();
 							var rect = document.getElementById("chart' . $rand . '").getBoundingClientRect();
@@ -291,8 +373,9 @@
 							if (notPointed) {
 								$("#c' . $rand . '").html("");
 							}
-						});
-					</script>';
+						});';
+			}
+		echo '		</script>';
 		}
 	}
 ?>
