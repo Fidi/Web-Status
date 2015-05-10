@@ -1,7 +1,7 @@
 { 
   "graph" : { 
   "title" : "Mount", 
-  "type" : "bar", 
+  "type" : "pie", 
   "refreshEveryNSeconds" : 300, 
   "datasequences" : [ 
       {      "title": "Free", 
@@ -16,7 +16,7 @@
       }, 
       {      "title": "Documents", 
             "datapoints" : [ 
-               { "title" : "14:11", "value" : 7.83029e+06} 
+               { "title" : "14:11", "value" : 7.83029e+08} 
              ] 
       }, 
       {      "title": "Movies", 

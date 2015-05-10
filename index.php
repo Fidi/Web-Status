@@ -203,7 +203,7 @@
 			
 			switch ($json->{"box$x"}->type) {
 				case "time": 	if ($json->{"box$x"}->details == "analog") {
-									echo ' 	<div class="analog_clock" style="">
+									echo ' 	<div class="analog_clock">
 												<canvas id="analog_clock" style="width: 100%; height: 100%;"></canvas>
 											</div>';
 								} else {
