@@ -5,7 +5,7 @@
   "refreshEveryNSeconds" : 60, 
   "yAxis" : { 
          "minValue" : 0, 
-         "maxValue" : 3 
+         "maxValue" : 0.5
    }, 
   "datasequences" : [ 
       {      "title": "Load 1m", 

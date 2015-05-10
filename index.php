@@ -38,7 +38,7 @@
 		// this defines the resizing behaviour of each box
 		var resObj = {
                grid: [142,142],
-			   minHeight: 131,
+			   minHeight: 273,
 			   minWidth: 273,
 			   maxHeight: 567,
 			   maxWidth: 851,

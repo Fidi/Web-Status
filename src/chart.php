@@ -43,7 +43,7 @@
 		
 		private function getYAxisMin() {
 			$min = $this->json->graph->yAxis->minValue;
-			if ($min == "") {
+			if (($min == "") && ($min != 0)) {
 				return self::VALUE_NOT_FOUND;
 			}
 			return $min;
@@ -113,7 +113,12 @@
 		}
 		
 		private function getStepSize() {
+			$min = $this->getYAxisMin();
+			$max = $this->getYAxisMax();
 			$range = $this->getRange();
+			if (($min != self::VALUE_NOT_FOUND) && ($max != self::VALUE_NOT_FOUND)) {
+				return	($range/10);
+			}
 			if ($range <= 5) { return 0.5; }
 			else if ($range <= 10) { return 1; }
 			else { return ceil($range / 10) * 10; }	
@@ -209,7 +214,7 @@
 								// draw the caption of the graph
 								ctx.fillStyle = "#FFF";
 								ctx.font = "bold 20px Helvetica";
-								ctx.fillText("' . $this->getGraphTitle() . '", 10, 25);
+								ctx.fillText("' . strtoupper($this->getGraphTitle()) . '", 10, 25);
 								
 								// draw sequence titles
 								var rightdistance = 10;
@@ -237,9 +242,9 @@
 								ctx.lineTo(canvasWidth-10,canvasHeight-bottomDistance);
 								ctx.stroke();
 								
-								var lineDiff = (canvasHeight - bottomDistance - 50)/10;
+								var lineDiff = (canvasHeight - bottomDistance - 60)/10;
 								';
-				for ($i = 1;  $i < 10; $i++) {
+				for ($i = 1;  $i <= 10; $i++) {
 					echo '		ctx.strokeStyle = "#666";
 								ctx.lineWidth = 0.3;
 								ctx.beginPath();
@@ -313,13 +318,34 @@
 				$steps = $this->getStepSize();
 				$start = $this->getMinValue();
 				
-				for ($i = 1;  $i < 10; $i++) {
+				// print reference line captions
+				for ($i = 1;  $i <= 10; $i++) {
 					echo '		ctx.fillStyle = "#666";
 								ctx.font = "bold 10px Helvetica";
 								ctx.textAlign = "right"; 
-								ctx.fillText("' . number_format($start + ($i * $steps), 1, '.', '') . '", 40, canvasHeight - 25 - (' . $i . ' * (canvasHeight - 80)/10));
+								ctx.fillText("' . number_format($start + ($i * $steps), 2, '.', '') . '", 40, canvasHeight - 25 - (' . $i . ' * (canvasHeight - 80)/10));
 								';	
-				}			
+				}	
+				
+				// print values	
+				echo '			var drawWidth = canvasWidth - 40;
+								var widthDiff = drawWidth/' . $this->getSequenceLength() . ';
+								';
+				for ($i = $this->getSequenceCount()-1;  $i >= 0; $i--) {
+					echo '		var startLeft = 50;
+								';
+					for ($j = 0; $j < $this->getSequenceLength()-1; $j++) {
+						echo '	ctx.strokeStyle = "' . $this->colors[$entr[$i]] .  '";
+								ctx.lineWidth = 1.5;
+								ctx.beginPath();
+								ctx.moveTo(startLeft, 50 + (((' . ($this->getRange() - $this->getDatapointValue($i, $j)) . ' - ' . $start . ') * (canvasHeight - 80)/(' . $this->getRange() . '))));
+								ctx.lineTo(startLeft + widthDiff, 50 + (((' . ($this->getRange() - $this->getDatapointValue($i, $j+1)) . ' - ' . $start . ') * (canvasHeight - 80)/(' . $this->getRange() . '))));
+								//ctx.closePath();
+								ctx.stroke();
+								startLeft += widthDiff;
+								';	
+					}
+				}		
 			}
 			
 			echo '			}
