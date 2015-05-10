@@ -277,12 +277,17 @@
 							var p = { x: e.clientX - rect.left, y: e.clientY - rect.top };
 							var c = { x: canvasWidth/2, y: canvasHeight/2 };
 							var notPointed = true;
-							for(var i in sectorsarray){								
-								if (isInsideSector(p, c, (Math.min(canvasHeight, canvasWidth)/3), sectorsarray[i].start, sectorsarray[i].end)) {
+							var centerDist = (Math.min(canvasHeight, canvasWidth)/7) - 2;
+							
+							for(var i in sectorsarray){	
+								if ((Math.abs(p.x-c.x) < centerDist) && (Math.abs(p.y-c.y) < centerDist)) {
+									notPointed = true;	
+								} else if (isInsideSector(p, c, (Math.min(canvasHeight, canvasWidth)/3), sectorsarray[i].start, sectorsarray[i].end)) {
 									$("#c' . $rand . '").html(sectorsarray[i].name + ": " + sectorsarray[i].details);
 									notPointed = false;
 								} 
 							}
+							
 							if (notPointed) {
 								$("#c' . $rand . '").html("");
 							}
