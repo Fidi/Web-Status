@@ -1,12 +1,12 @@
 { 
   "graph" : { 
   "title" : "Network", 
-  "type" : "line", 
+  "type" : "bar", 
   "refreshEveryNSeconds" : 60, 
   "datasequences" : [ 
       {      "title": "Network In", 
             "datapoints" : [ 
-               { "title" : "15:46", "value" : -6.68259e+07}, 
+               { "title" : "15:46", "value" : 1.68259e+07}, 
                { "title" : "15:47", "value" : 1198}, 
                { "title" : "15:48", "value" : 6513}, 
                { "title" : "15:49", "value" : 12159}, 
@@ -40,7 +40,7 @@
       }, 
       {      "title": "Network Out", 
             "datapoints" : [ 
-               { "title" : "15:46", "value" : -7.58881e+09}, 
+               { "title" : "15:46", "value" : 1.58881e+09}, 
                { "title" : "15:47", "value" : 216}, 
                { "title" : "15:48", "value" : 1408}, 
                { "title" : "15:49", "value" : 5444}, 

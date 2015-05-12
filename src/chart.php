@@ -204,7 +204,7 @@
 
  
 							drawOutline();
-							drawChart();
+							drawData();
  							
 				
 							// This draws all the captions and
@@ -260,7 +260,7 @@
 							';
 			
 			echo '			// This draws the chart
-							function drawChart() {
+							function drawData() {
 							';
 			
 			if ($this->getGraphType() == "pie") {
@@ -285,15 +285,11 @@
 								ctx.arc(canvasWidth/2, canvasHeight/2, radius, ' . $prevangle . ', ' . $angle . ');
 								ctx.lineTo(canvasWidth/2,canvasHeight/2);
 								ctx.closePath();
-								ctx.shadowOffsetX = 0;
-								ctx.shadowOffsetY = 0;
-								ctx.shadowBlur = 5;
-								ctx.shadowColor = "#555";
 								ctx.fillStyle = "' . $this->colors[$entr[$i]] .  '";
 								ctx.fill();
-								ctx.lineWidth = 0;
-								ctx.strokeStyle = "rgba(0,0,0,0.1)";
-								ctx.stroke();
+								//ctx.lineWidth = 0;
+								//ctx.strokeStyle = "rgba(0,0,0,0.1)";
+								//ctx.stroke();
 								
 								var x' . ($i+1) . ' = {
 									start : ' . $prevangle . ',
@@ -313,20 +309,37 @@
 					  ';
 			}  
 			
-			if ($this->getGraphType() == "line") {
-				// line chart
+			if (($this->getGraphType() == "line") || ($this->getGraphType() == "bar")) {
+				// line/bar chart
 				$steps = $this->getStepSize();
 				$start = $this->getMinValue();
 				
 				// print reference line captions
 				for ($i = 1;  $i <= 10; $i++) {
+					if ($steps < 1) {
+						$number = number_format($start + ($i * $steps), 2, '.', '');
+					} else if ($steps < 10) {
+						$number = number_format($start + ($i * $steps), 1, '.', '');
+					} else if ($steps < 1000) {
+						$number = number_format($start + ($i * $steps), 0, '.', '');	
+					} else if ($steps < 1000000) {
+						$number = number_format(($start + ($i * $steps))/ 1000, 0, '.', '') . 'k';
+					} else if ($steps < 10000000000) {
+						$number = number_format(($start + ($i * $steps))/ 1000000, 0, '.', '') . 'M';
+					} else {
+						$number = number_format(($start + ($i * $steps))/ 10000000000, 0, '.', '') . 'G';
+					}
 					echo '		ctx.fillStyle = "#666";
 								ctx.font = "bold 10px Helvetica";
 								ctx.textAlign = "right"; 
-								ctx.fillText("' . number_format($start + ($i * $steps), 2, '.', '') . '", 40, canvasHeight - 25 - (' . $i . ' * (canvasHeight - 80)/10));
+								ctx.fillText("' . $number . '", 40, canvasHeight - 25 - (' . $i . ' * (canvasHeight - 80)/10));
 								';	
 				}	
-				
+			}
+			
+			
+			// line
+			if ($this->getGraphType() == "line") {				
 				// print values	
 				echo '			var drawWidth = canvasWidth - 40;
 								var widthDiff = drawWidth/' . $this->getSequenceLength() . ';
@@ -336,7 +349,7 @@
 								';
 					for ($j = 0; $j < $this->getSequenceLength()-1; $j++) {
 						echo '	ctx.strokeStyle = "' . $this->colors[$entr[$i]] .  '";
-								ctx.lineWidth = 1.5;
+								ctx.lineWidth = 2;
 								ctx.beginPath();
 								ctx.moveTo(startLeft, 50 + (((' . ($this->getRange() - $this->getDatapointValue($i, $j)) . ' - ' . $start . ') * (canvasHeight - 80)/(' . $this->getRange() . '))));
 								ctx.lineTo(startLeft + widthDiff, 50 + (((' . ($this->getRange() - $this->getDatapointValue($i, $j+1)) . ' - ' . $start . ') * (canvasHeight - 80)/(' . $this->getRange() . '))));
@@ -348,14 +361,32 @@
 				}		
 			}
 			
+			
+			// bar
+			if ($this->getGraphType() == "bar") {				
+				// print values	
+				echo '			var drawWidth = canvasWidth - 50;
+								var barWidth = drawWidth/(' . $this->getSequenceLength() . '*' . $this->getSequenceCount() . ');
+								';
+				echo '			var startLeft = 50;
+								';
+				for ($i = 0;  $i < $this->getSequenceLength(); $i++) {
+					for ($j = 0; $j < $this->getSequenceCount(); $j++) {
+						echo '	ctx.strokeStyle = "' . $this->colors[$entr[$j]] .  '";
+								ctx.lineWidth = barWidth-1;
+								ctx.beginPath();
+								ctx.moveTo(startLeft, canvasHeight - 25);
+								ctx.lineTo(startLeft, 50 + ((canvasHeight - 80) - ((' . $this->getDatapointValue($j, $i) . '/' . $this->getRange() . ') * (canvasHeight - 80)))); 
+								//ctx.closePath();
+								ctx.stroke();
+								startLeft += barWidth;
+								';	
+					}
+				}		
+			}
+			
 			echo '			}
 						};
-						
-												
-						
-						drawChart' . $rand . '();
-						
-						$("#chart' . $rand . '").parent().on( "resize", function( event, ui ) { drawChart' . $rand . '(); } );
 						';
 						
 			
@@ -401,7 +432,12 @@
 							}
 						});';
 			}
-		echo '		</script>';
+		echo '		
+					drawChart' . $rand . '();
+						
+					$("#chart' . $rand . '").parent().on( "resize", function( event, ui ) { drawChart' . $rand . '(); } );
+					
+					</script>';
 		}
 	}
 ?>
