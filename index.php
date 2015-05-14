@@ -9,6 +9,7 @@
     
     <link href="src/style.css" rel="stylesheet" />
     <script src="src/clock.js"></script>
+    <script src="src/chart.js"></script>
   
     
     <?php 

@@ -40,7 +40,7 @@
       }, 
       {      "title": "Network Out", 
             "datapoints" : [ 
-               { "title" : "15:46", "value" : 1.58881e+09}, 
+               { "title" : "15:46", "value" : 1.58881e+08}, 
                { "title" : "15:47", "value" : 216}, 
                { "title" : "15:48", "value" : 1408}, 
                { "title" : "15:49", "value" : 5444}, 
