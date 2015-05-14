@@ -264,37 +264,94 @@ var Chart = Class({
 
 			case "line": 	var drawWidth = canvasWidth - 40;
 							var widthDiff = drawWidth/this.getSequenceLength();
+							
+							// create an array
+							var s = [];
 							for (var i = this.getSequenceCount()-1;  i >= 0; i--) {
 								var startLeft = 50;
 								for (var j = 0; j < this.getSequenceLength()-1; j++) {
-									ctx.strokeStyle = colors[i];
-									ctx.lineWidth = 3;
-									ctx.beginPath();
-									ctx.moveTo(startLeft, 50 + ((((this.getRange() - this.getDatapointValue(i, j)) - Math.min(this.getMinValue(), 0)) * (canvasHeight - 80)/(this.getRange()))));
-									ctx.lineTo(startLeft + widthDiff, 50 + ((((this.getRange() - this.getDatapointValue(i, j+1)) - Math.min(this.getMinValue(), 0)) * (canvasHeight - 80)/(this.getRange()))));
-									ctx.stroke();
+									var x = {
+										left: startLeft,
+										value :  50 + ((((this.getRange() - this.getDatapointValue(i, j)) - Math.min(this.getMinValue(), 0)) * (canvasHeight - 80)/(this.getRange()))),
+										next : 50 + ((((this.getRange() - this.getDatapointValue(i, j+1)) - Math.min(this.getMinValue(), 0)) * (canvasHeight - 80)/(this.getRange()))),
+										color : colors[i]
+									};								
+									s.push(x);
+									
 									startLeft += widthDiff;
+								}
+							}	
+							
+							var endNum = this.getSequenceCount()*this.getSequenceLength();
+							var curNum = 0;
+							ctx.lineWidth = 3;
+							
+							// draw the lines
+							function animateLines(c) {
+								ctx.strokeStyle = s[curNum].color;
+								ctx.beginPath();
+								ctx.moveTo(s[curNum].left, s[curNum].value);
+								ctx.lineTo(s[curNum].left + widthDiff, s[curNum].next);
+								ctx.stroke();
+								curNum++;
+								startLeft += widthDiff;
+								if (c < endNum) {
 									if (animated) {
-										//sleep(500);	
+										requestAnimationFrame(function () {
+											animateLines(curNum);
+										});
+									} else {
+										animateLines(curNum);
 									}
 								}
-							}		
+							}
+							
+							animateLines(0);
+								
 							break;
 							
 			case "bar": 	var drawWidth = canvasWidth - 60;
 							var barWidth = drawWidth/(this.getSequenceLength() * this.getSequenceCount());
 							var startLeft = 50 + barWidth/2;
+							
+							// create an array
+							var s = [];
 							for (var i = 0;  i < this.getSequenceLength(); i++) {
-								for (var j = 0; j < this.getSequenceCount(); j++) {
-									ctx.strokeStyle = colors[j];
-									ctx.lineWidth = barWidth-1;
-									ctx.beginPath();
-									ctx.moveTo(startLeft, canvasHeight - 25);
-									ctx.lineTo(startLeft, 50 + ((canvasHeight - 80) - ((this.getDatapointValue(j, i)/this.getRange()) * (canvasHeight - 80)))); 
-									ctx.stroke();
-									startLeft += barWidth;
+								for (var j = 0; j < this.getSequenceCount(); j++) {								
+									var x = {
+										value :  50 + ((canvasHeight - 80) - ((this.getDatapointValue(j, i)/this.getRange()) * (canvasHeight - 80))),
+										color : colors[j]
+									};								
+									s.push(x);
 								}
 							}
+							
+							var endNum = this.getSequenceCount()*this.getSequenceLength();
+							var curNum = 0;
+							ctx.lineWidth = barWidth-1;
+							
+							// draw the bars
+							function animateBars(c) {
+								ctx.strokeStyle = s[curNum].color;
+								ctx.beginPath();
+								ctx.moveTo(startLeft, canvasHeight - 25);						
+								ctx.lineTo(startLeft, s[curNum].value); 
+								ctx.stroke();
+								curNum++;
+								startLeft += barWidth;
+								if (c < endNum) {
+									if (animated) {
+										requestAnimationFrame(function () {
+											animateBars(curNum);
+										});
+									} else {
+										animateBars(curNum);
+									}
+								}
+							}
+							
+							animateBars(0);
+								
 							break;	
 							
 			case "pie": 	var radius = Math.min(canvasHeight, canvasWidth)/4;
@@ -306,6 +363,7 @@ var Chart = Class({
 								total += this.getDatapointValue(i, 0);
 							}
 							
+							// store angles in array to access them inside animate function
 							var s = [];
 							for (var i = 0; i < this.getSequenceCount(); i++) {
 								var x = {
@@ -315,12 +373,13 @@ var Chart = Class({
 								s.push(x);
 							}
 
-
+							
 							var endPercent = 101;
 							var curPerc = 0;
 							ctx.lineWidth = lineWidth;
 							
-							function animate(c) {
+							// and draw the pie with or without animating it
+							function animatePie(c) {
 								var l = 0;
 								for (var i = 0; i < s.length; i++) {
 									l += Math.round(s[i].percent);
@@ -336,15 +395,15 @@ var Chart = Class({
 								if (curPerc < endPercent) {
 									if (animated) {
 										requestAnimationFrame(function () {
-											animate(curPerc / 100);
+											animatePie(curPerc / 100);
 										});
 									} else {
-										animate(curPerc / 100);
+										animatePie(curPerc / 100);
 									}
 								}
 							}
 							
-							animate();
+							animatePie();
 							
 							break;
 		}
