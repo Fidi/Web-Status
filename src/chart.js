@@ -1,5 +1,13 @@
 // JS Chart library
 
+
+(function() {
+  var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                              window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+  window.requestAnimationFrame = requestAnimationFrame;
+})();
+
+
 var colors = ["#2e89f9", "#ee2e22", "#fed105", "#31e618", "#f48026", "#97015e"];
 
 
@@ -219,11 +227,31 @@ var Chart = Class({
 				ctx.textAlign = "right"; 
 				ctx.fillText(number, 40, canvasHeight - bottomDistance - (i * lineDiff) + 4);
 			}
+			
+			var totalTitleWidth = 0;
+			for (var i = 0; i < this.getSequenceLength()-1; i++) {
+				totalTitleWidth += ctx.measureText(this.getDatapointTitle(0, i)).width;
+			}
+			var diffValue = 1;
+			while (totalTitleWidth >= canvasWidth - 60) {
+				totalTitleWidth = totalTitleWidth/2;
+				diffValue = diffValue * 2;
+			}
+			var stepCounts = this.getSequenceLength()/diffValue;
+			var titleMargin = (canvasWidth - 60 - totalTitleWidth)/stepCounts;
+
+			for (var i = 0; i < stepCounts; i++){
+				ctx.fillStyle = "#666";
+				ctx.font = "bold 10px Helvetica";
+				ctx.textAlign = "left"; 
+				var text = this.getDatapointTitle(0, i*diffValue);
+				ctx.fillText(text, 50 + (i * (ctx.measureText(text).width + titleMargin)), canvasHeight - 10);
+			}
 		}
 	},
 	
 	
-	drawValues: function() {
+	drawValues: function(animated) {
 		
 		var c = document.getElementById(this.canvasID);
 		var ctx = c.getContext("2d");
@@ -246,6 +274,9 @@ var Chart = Class({
 									ctx.lineTo(startLeft + widthDiff, 50 + ((((this.getRange() - this.getDatapointValue(i, j+1)) - Math.min(this.getMinValue(), 0)) * (canvasHeight - 80)/(this.getRange()))));
 									ctx.stroke();
 									startLeft += widthDiff;
+									if (animated) {
+										//sleep(500);	
+									}
 								}
 							}		
 							break;
@@ -266,8 +297,8 @@ var Chart = Class({
 							}
 							break;	
 							
-			case "pie": 	var radius = Math.min(canvasHeight, canvasWidth)/3;
-							var lineWidth = Math.min(canvasHeight, canvasWidth)/7;
+			case "pie": 	var radius = Math.min(canvasHeight, canvasWidth)/4;
+							var lineWidth = radius-20;
 							
 							// calculate total number
 							var total = 0;
@@ -275,26 +306,46 @@ var Chart = Class({
 								total += this.getDatapointValue(i, 0);
 							}
 							
-							// print each value
-							var currentAngle = 0;
-							var previousAngle = 0;
+							var s = [];
 							for (var i = 0; i < this.getSequenceCount(); i++) {
-								previousAngle = currentAngle;
-								currentAngle += Math.round(this.getDatapointValue(i,0)*360/total) * (Math.PI/180);
+								var x = {
+									percent :  (this.getDatapointValue(i, 0)*100/total),
+									color : colors[i]
+								};
+								s.push(x);
+							}
+
+
+							var endPercent = 101;
+							var curPerc = 0;
+							ctx.lineWidth = lineWidth;
+							
+							function animate(c) {
+								var l = 0;
+								for (var i = 0; i < s.length; i++) {
+									l += Math.round(s[i].percent);
+									if (c*100 < l) {
+										ctx.strokeStyle = s[i].color;
+										break;
+									}
+								}
 								ctx.beginPath();
-								ctx.moveTo(canvasWidth/2,canvasHeight/2);
-								ctx.arc(canvasWidth/2, canvasHeight/2, radius, previousAngle, currentAngle);
-								ctx.lineTo(canvasWidth/2,canvasHeight/2);									
-								ctx.closePath();
-								ctx.fillStyle = colors[i];
-								ctx.fill();
+								ctx.arc(canvasWidth / 2, canvasHeight / 2, radius, (Math.PI * 2)*(c-0.012) - (Math.PI/2), (Math.PI * 2 * c) - (Math.PI/2), false);
+								ctx.stroke();
+								curPerc++;
+								if (curPerc < endPercent) {
+									if (animated) {
+										requestAnimationFrame(function () {
+											animate(curPerc / 100);
+										});
+									} else {
+										animate(curPerc / 100);
+									}
+								}
 							}
 							
-							ctx.beginPath();
-							ctx.arc(canvasWidth/2, canvasHeight/2, lineWidth, 0, 2 * Math.PI, false);
-							ctx.closePath();
-							ctx.clip();
-							ctx.clearRect(canvasWidth/2 - lineWidth - 1, canvasHeight/2 - lineWidth - 1, lineWidth * 2 + 2, lineWidth * 2 + 2);
+							animate();
+							
 							break;
 		}
 	},

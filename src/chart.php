@@ -41,6 +41,17 @@
 			return $this->json->graph->type;
 		}
 		
+		
+		private function getUpdateInterval() {
+			$int = $this->json->graph->refreshEveryNSeconds;
+			if (($int == "") && ($int != 0)) {
+				return self::VALUE_NOT_FOUND;
+			}	
+			return $int*1000;
+		}
+		
+		
+		
 		private function getYAxisMin() {
 			$min = $this->json->graph->yAxis->minValue;
 			if (($min == "") && ($min != 0)) {
@@ -189,9 +200,12 @@
 					<script type="text/javascript">
 						var chart' . $rand . ' = new Chart("chart' . $rand . '", "' . $this->input . '");
 						chart' . $rand . '.drawOutline();
-						chart' . $rand . '.drawValues();
-						$("#chart' . $rand . '").parent().on( "resize", function( event, ui ) { chart' . $rand . '.drawOutline(); chart' . $rand . '.drawValues(); } );
-					</script>
+						chart' . $rand . '.drawValues(true);
+						$("#chart' . $rand . '").parent().on( "resize", function( event, ui ) { chart' . $rand . '.drawOutline(); chart' . $rand . '.drawValues(false); } );';
+			if ($this->getUpdateInterval() != self::VALUE_NOT_FOUND) {
+				echo '	setInterval(function(){ chart' . $rand . '.drawOutline(); chart' . $rand . '.drawValues(false); }, ' . $this->getUpdateInterval() . ');';
+			}
+			echo ' </script>
 					';
 		}
 	}
