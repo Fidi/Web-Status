@@ -3,6 +3,11 @@
   "title" : "Network", 
   "type" : "bar", 
   "refreshEveryNSeconds" : 60, 
+  "yAxis": {
+    "units" : {
+      "suffix": "kB"	
+	}
+  },
   "datasequences" : [ 
       {      "title": "Network In", 
             "datapoints" : [ 

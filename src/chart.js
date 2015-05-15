@@ -29,17 +29,15 @@ var Class = function(methods) {
 
 // chart class
 var Chart = Class({
+	
     initialize: function(canvasID, jsonPath) {
         this.canvasID = canvasID;
         this.jsonPath  = jsonPath;
 		this.json_o = this.getJSON();
     },
 	
-	callbackFuncWithData: function(data){
- // do some thing with data 
-	this.json_o = data;
-},
 	
+	// parses the json file into JS object
 	getJSON: function() {
 		var result = null;
 		$.ajax({
@@ -48,63 +46,99 @@ var Chart = Class({
 			dataType: "json",
 			success: function(data){
 				result = data;
+			},
+			error: function() {
+				console.log("Error fetching json file");	
 			}
 		});
 		return result;
 	},
 	
 	
-	
+	// returns the title of the chart
 	getChartTitle: function() {
-		return this.json_o.graph.title;
+		if (this.json_o.graph.hasOwnProperty("title")) {
+			return this.json_o.graph.title;
+		}
+		return "undefined";
 	},
 	
+	// returns the chart type:
+	// if not specified line is default
 	getGraphType: function() {
-		return this.json_o.graph.type;
+		if (this.json_o.graph.hasOwnProperty("title")) {
+			return this.json_o.graph.type;
+		}
+		return "line";
 	},
 	
 	
-	
+	// returns the smallest value of the y axis:
+	// if not specified the smallest graph value - 10% is choosen
 	getYAxisMin: function() {
-		if (!(this.json_o.graph.hasOwnProperty("yAxis"))) {
-			return -424242;	
-		} else {
-			return this.json_o.graph.yAxis.minValue;
+		if ((this.json_o.graph.hasOwnProperty("yAxis")) 
+		&&  (this.json_o.graph.yAxis.hasOwnProperty("minValue"))) {
+			return this.json_o.graph.yAxis.minValue;	
 		}
+		var mi = this.getMinValue();
+		return mi - (mi*10/100);
 	},
 	
+	// returns the biggest value of the y axis:
+	// if not specified the biggest graph value - 10% is choosen
 	getYAxisMax: function() {
-		if (!(this.json_o.graph.hasOwnProperty("yAxis"))) {
-			return -424242;	
-		} else {
-			return this.json_o.graph.yAxis.maxValue;
+		if ((this.json_o.graph.hasOwnProperty("yAxis")) 
+		&&  (this.json_o.graph.yAxis.hasOwnProperty("maxValue"))) {
+			return this.json_o.graph.yAxis.maxValue;	
 		}
+		var ma = this.getMaxValue();
+		return ma + (ma*10/100);
 	},
 	
 	
+	// returns the biggest value of the y axis:
+	// if not specified the biggest graph value - 10% is choosen
+	getUnitSuffix: function() {
+		if ((this.json_o.graph.hasOwnProperty("yAxis")) 
+		&&  (this.json_o.graph.yAxis.hasOwnProperty("units"))
+		&&  (this.json_o.graph.yAxis.units.hasOwnProperty("suffix"))) {
+			return this.json_o.graph.yAxis.units.suffix;	
+		}
+		return "";
+	},
 	
+	
+	// returns the number of datasequences
 	getSequenceCount: function() {
 		return this.json_o.graph.datasequences.length;
 	},
 	
+	// returns the length of each datasequence (# datapoints)
 	getSequenceLength: function() {
 		return this.json_o.graph.datasequences[0].datapoints.length;
 	},
 	
+	// returns the title of the submitted datasequence:
+	// if not specified a generic term is returned
 	getSequenceTitle: function(sequence) {
-		return this.json_o.graph.datasequences[sequence].title;
+		if (this.json_o.graph.datasequences[sequence].hasOwnProperty("title")) {
+			return this.json_o.graph.datasequences[sequence].title;
+		}
+		return "Sequence " + (sequence+1);
 	},
 		
+	// returns the value of the submitted sequence at position "index"
 	getDatapointValue: function(sequence, index) {
 		return this.json_o.graph.datasequences[sequence].datapoints[index].value;
 	},
 	
+	// returns the title of the submitted sequence at position "index"
 	getDatapointTitle: function(sequence, index) {
 		return this.json_o.graph.datasequences[sequence].datapoints[index].title;
 	},
 	
 	
-	
+	// check for the smallest value in the chart
 	getMinValue: function() {
 		var mi = Number.MAX_VALUE;
 		for (var i = 0; i < this.getSequenceCount(); i++) {
@@ -117,6 +151,7 @@ var Chart = Class({
 		return mi;
 	},
 	
+	// check for the biggest value in the chart
 	getMaxValue: function() {
 		var ma = Number.MIN_VALUE;
 		for (var i = 0; i < this.getSequenceCount(); i++) {
@@ -129,34 +164,21 @@ var Chart = Class({
 		return ma;
 	},
 	
+	
+	// helper function to get range between the y axis min and max
 	getRange: function() {
-		var ma = this.getYAxisMax();
-		if (ma == -424242) {
-			ma = this.getMaxValue();
-		}
-			
-		mi = this.getYAxisMin();
-		if (mi == -424242) {
-			mi = this.getMinValue();	
-		}
-		mi = Math.min(mi, 0);
-			
-		return ma - mi;
+		return this.getYAxisMax() - this.getYAxisMin();
 	},
 	
+	// get the step size from range (default: 10 steps)
 	getStepSize: function() {
-		var mi = this.getYAxisMin();
-		var ma = this.getYAxisMax();
-		if ((mi != -424242) && (ma != -424242)) { return ((ma-mi)/10); }
-		if (mi == -424242) { mi = 0; }
-		if (ma == -424242) { ma = this.getMaxValue(); }
-		
-		var range = ma - mi;
-		return (Math.ceil(range/10) * 10);
+		return this.getRange()/10;
 	},
 	
 	
-	
+	// this displays the charts outline:
+	// includes: title, unit, sequence titles (all)
+	//           reference lines, scale, footer (line and bar)
 	drawOutline: function() {
 		var c = document.getElementById(this.canvasID);
 		var ctx = c.getContext("2d");
@@ -170,7 +192,15 @@ var Chart = Class({
 		// draw the caption of the graph
 		ctx.fillStyle = "#FFF";
 		ctx.font = "bold 20px Helvetica";
+		var units = this.getUnitSuffix();
+		if (units != "") { units = " (in " + units + ")"; }
 		ctx.fillText(this.getChartTitle().toUpperCase(), 10, 25);
+		
+		var marginLeft = 15 + ctx.measureText(this.getChartTitle().toUpperCase()).width; 
+		ctx.font = "bold 15px Helvetica";
+		var unitSuffix = this.getUnitSuffix();
+		if (unitSuffix != "") { unitSuffix = " (in " + unitSuffix + ")"; }
+		ctx.fillText(unitSuffix, marginLeft, 24);
 		
 		// draw sequence titles
 		var rightDistance = 10;
@@ -208,7 +238,7 @@ var Chart = Class({
 				
 				// and its descriptive caption
 				var s = this.getStepSize();
-				var number = Math.min(this.getMinValue(), 0) + (i * s);
+				var number = Math.min(this.getMinValue(), this.getYAxisMin()) + (i * s);
 				if (s < 1) {
 					number = number.toFixed(2);
 				} else if (s < 10) {
@@ -252,8 +282,9 @@ var Chart = Class({
 	},
 	
 	
-	drawValues: function(animated) {
-		
+	// draws the actual chart:
+	// param animated decides if each step is drawn with delay or everything at once
+	drawValues: function(animated) {	
 		var c = document.getElementById(this.canvasID);
 		var ctx = c.getContext("2d");
 							
@@ -273,8 +304,8 @@ var Chart = Class({
 								for (var j = 0; j < this.getSequenceLength()-1; j++) {
 									var x = {
 										left: startLeft,
-										value :  50 + ((((this.getRange() - this.getDatapointValue(i, j)) - Math.min(this.getMinValue(), 0)) * (canvasHeight - 80)/(this.getRange()))),
-										next : 50 + ((((this.getRange() - this.getDatapointValue(i, j+1)) - Math.min(this.getMinValue(), 0)) * (canvasHeight - 80)/(this.getRange()))),
+										value :  50 - i + ((((this.getRange() - (this.getDatapointValue(i, j) - this.getYAxisMin()))) * (canvasHeight - 75)/(this.getRange()))),
+										next : 50 - i + ((((this.getRange() - (this.getDatapointValue(i, j+1) - this.getYAxisMin()))) * (canvasHeight - 75)/(this.getRange()))),
 										color : colors[i]
 									};								
 									s.push(x);

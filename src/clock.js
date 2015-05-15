@@ -73,6 +73,14 @@ function displayAnalogClock(canvasID) {
 		ctx.fillText(ampm, canvasWidth/2, canvasHeight/4);  
 	}
 	
+	// add some awesome logo "\uF8FF"
+	if (Math.min(canvasHeight, canvasWidth) > 200) {
+		ctx.textAlign = "center";     
+		ctx.fillStyle = "rgba(50, 50, 50, 0.3)";
+		ctx.font = "bold 25px Helvetica";
+		ctx.fillText("\uF8FF", canvasWidth/2, canvasHeight*3/4);  
+	}
+	
 	// Minutes
 	angle = ((Math.PI * 2) * (min / 60)) - ((Math.PI * 2) / 4);
 	ctx.lineWidth = 5;

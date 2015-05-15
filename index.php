@@ -185,7 +185,7 @@
 </head>
 
 <body>
-
+	<!--
 	<div id="settings-triangle">
     	<img src="icons/settings.png" id="settings" />
     </div>
@@ -196,6 +196,7 @@
         	<img src="icons/add.png" style="height: 32px; width: 32px; margin: 20px;" id="settings-add" />
         </center>
     </div>
+    -->
 
 	<?php
 		$json = json_decode(file_get_contents("config.json"));
