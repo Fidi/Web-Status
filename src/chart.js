@@ -228,12 +228,13 @@ var Chart = Class({
 				ctx.fillText(number, 40, canvasHeight - bottomDistance - (i * lineDiff) + 4);
 			}
 			
+			// add footer captions
 			var totalTitleWidth = 0;
 			for (var i = 0; i < this.getSequenceLength()-1; i++) {
 				totalTitleWidth += ctx.measureText(this.getDatapointTitle(0, i)).width;
 			}
 			var diffValue = 1;
-			while (totalTitleWidth >= canvasWidth - 60) {
+			while (totalTitleWidth >= (canvasWidth - 60)-50) {
 				totalTitleWidth = totalTitleWidth/2;
 				diffValue = diffValue * 2;
 			}
@@ -282,7 +283,6 @@ var Chart = Class({
 								}
 							}	
 							
-							var endNum = this.getSequenceCount()*this.getSequenceLength();
 							var curNum = 0;
 							ctx.lineWidth = 3;
 							
@@ -295,7 +295,7 @@ var Chart = Class({
 								ctx.stroke();
 								curNum++;
 								startLeft += widthDiff;
-								if (c < endNum) {
+								if (c < s.length-1) {
 									if (animated) {
 										requestAnimationFrame(function () {
 											animateLines(curNum);
@@ -311,8 +311,6 @@ var Chart = Class({
 							break;
 							
 			case "bar": 	var drawWidth = canvasWidth - 60;
-							var barWidth = drawWidth/(this.getSequenceLength() * this.getSequenceCount());
-							var startLeft = 50 + barWidth/2;
 							
 							// create an array
 							var s = [];
@@ -326,19 +324,28 @@ var Chart = Class({
 								}
 							}
 							
-							var endNum = this.getSequenceCount()*this.getSequenceLength();
 							var curNum = 0;
+							var endNum = 100;
+							var stepHeight = (canvasHeight - 80)/100;
+							var startBottom = canvasHeight - 25;
+							var barWidth = drawWidth/(this.getSequenceLength() * this.getSequenceCount());
 							ctx.lineWidth = barWidth-1;
 							
 							// draw the bars
 							function animateBars(c) {
-								ctx.strokeStyle = s[curNum].color;
-								ctx.beginPath();
-								ctx.moveTo(startLeft, canvasHeight - 25);						
-								ctx.lineTo(startLeft, s[curNum].value); 
-								ctx.stroke();
+								var startLeft = 50 + barWidth/2;
+								for (var i = 0; i < s.length; i++) {
+									if (s[i].value < (canvasHeight - 25 - (curNum * stepHeight))) {
+										ctx.strokeStyle = s[i].color;
+										ctx.beginPath();
+										ctx.moveTo(startLeft, startBottom);						
+										ctx.lineTo(startLeft, startBottom-(stepHeight+1)); 
+										ctx.stroke();
+									}
+									startLeft += barWidth;
+								}
+								startBottom -= stepHeight;
 								curNum++;
-								startLeft += barWidth;
 								if (c < endNum) {
 									if (animated) {
 										requestAnimationFrame(function () {

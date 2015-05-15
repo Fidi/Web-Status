@@ -213,7 +213,7 @@
 								break;
 								
 				case "json": 	$obj = new chart($json->{"box$x"}->details);
-								echo $obj->drawChart();
+								echo $obj->drawChart($json->animation);
 								break;
 			}
 			

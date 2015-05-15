@@ -189,7 +189,7 @@
 		}
 		
 		
-		public function drawChart() {
+		public function drawChart($animated) {
 			$rand = rand();
 			$entr = array_rand($this->colors, $this->getSequenceCount());
 			
@@ -199,9 +199,14 @@
 					
 					<script type="text/javascript">
 						var chart' . $rand . ' = new Chart("chart' . $rand . '", "' . $this->input . '");
-						chart' . $rand . '.drawOutline();
-						chart' . $rand . '.drawValues(true);
-						$("#chart' . $rand . '").parent().on( "resize", function( event, ui ) { chart' . $rand . '.drawOutline(); chart' . $rand . '.drawValues(false); } );';
+						chart' . $rand . '.drawOutline();';
+			if ($animated == true) {
+				echo ' chart' . $rand . '.drawValues(true);';
+			} else {
+				echo ' chart' . $rand . '.drawValues(false);';
+			}
+			
+			echo '			$("#chart' . $rand . '").parent().on( "resize", function( event, ui ) { chart' . $rand . '.drawOutline(); chart' . $rand . '.drawValues(false); } );';
 			if ($this->getUpdateInterval() != self::VALUE_NOT_FOUND) {
 				echo '	setInterval(function(){ chart' . $rand . '.drawOutline(); chart' . $rand . '.drawValues(false); }, ' . $this->getUpdateInterval() . ');';
 			}
