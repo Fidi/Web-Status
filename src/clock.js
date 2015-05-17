@@ -2,6 +2,10 @@
 
 function displayAnalogClock(canvasID) {
 	var c = document.getElementById(canvasID);
+	
+	if (c == null) {
+		return; 
+	}
 
 	var canvasWidth = $("#" + canvasID).css("width").replace(/[^-\d\.]/g, '');
 	var canvasHeight = $("#" + canvasID).css("height").replace(/[^-\d\.]/g, '');

@@ -1,1 +1,54 @@
-{"animation":true,"count":7,"box0":{"type":"time","details":"analog","top":1,"left":285,"width":273,"height":273},"box1":{"type":"time","details":"digital","top":1,"left":1,"width":273,"height":273},"box2":{"type":"json","details":"sample/load.json","top":285,"left":1,"width":699,"height":415},"box3":{"type":"json","details":"sample/usage.json","top":285,"left":711,"width":557,"height":415},"box4":{"type":"json","details":"sample/network.json","top":1,"left":569,"width":699,"height":273},"box5":{"type":"json","details":"sample/cpu_temp.json","top":712,"left":1,"width":699,"height":273},"box6":{"type":"json","details":"sample/memory.json","top":712,"left":711,"width":557,"height":273}}
+{
+  "animation" : true,
+  "ratio" : "16:9",
+  "box" : [
+    {
+      "type": "clock",
+      "details": "analog",
+      "col": 1,
+      "row": 1,
+      "height": 3,
+      "width": 3
+    },
+    {
+      "type": "json",
+      "details": "sample/load.json",
+      "col": 4,
+      "row": 1,
+      "height": 3,
+      "width": 7
+    },
+    {
+      "type": "json",
+      "details": "sample/usage.json",
+      "col": 11,
+      "row": 1,
+      "height": 6,
+      "width": 6
+    },
+    {
+      "type": "json",
+      "details": "sample/network.json",
+      "col": 1,
+      "row": 4,
+      "height": 3,
+      "width": 10
+    },
+    {
+      "type": "json",
+      "details": "sample/cpu_temp.json",
+      "col": 1,
+      "row": 7,
+      "height": 3,
+      "width": 8
+    },
+    {
+      "type": "json",
+      "details": "sample/memory.json",
+      "col": 9,
+      "row": 7,
+      "height": 3,
+      "width": 8
+    }
+  ]
+}

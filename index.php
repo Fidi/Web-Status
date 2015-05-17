@@ -60,7 +60,7 @@
 						
 						var json_str = JSON.stringify(json_file);
 					
-						$.post("src/writeJSON.php", {json : json_str});  
+						//$.post("src/writeJSON.php", {json : json_str});  
 					});
                },
 			   stop: function (event, ui)
@@ -77,7 +77,7 @@
 						
 						var json_str = JSON.stringify(json_file);
 					
-						$.post("src/writeJSON.php", {json : json_str});  
+						//$.post("src/writeJSON.php", {json : json_str});  
 					});
                }
             };
@@ -102,7 +102,7 @@
 						
 						var json_str = JSON.stringify(json_file);
 					
-						$.post("src/writeJSON.php", {json : json_str});  
+						//$.post("src/writeJSON.php", {json : json_str});  
 					});
 				},
 			   	stop: function (event, ui)
@@ -119,7 +119,7 @@
 						
 						var json_str = JSON.stringify(json_file);
 					
-						$.post("src/writeJSON.php", {json : json_str});  
+						//$.post("src/writeJSON.php", {json : json_str});  
 					});
                	}
 			};
@@ -185,26 +185,55 @@
 </head>
 
 <body>
-	<!--
+	
 	<div id="settings-triangle">
-    	<img src="icons/settings.png" id="settings" />
+    	<img src="icons/fullscreen_on.png" id="fullscreen" title="Toggle fullscreen" />
+        <script type="text/javascript">
+			$(document).ready(function() {
+				if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement) {
+					$("#fullscreen").attr("src", "icons/fullscreen_on.png");
+				} else {
+					$("#fullscreen").attr("src", "icons/fullscreen_off.png");
+				}
+			});
+		</script>
     </div>
-    
-    <div id="settings-menu">
-    	<center>
-        	<br />
-        	<img src="icons/add.png" style="height: 32px; width: 32px; margin: 20px;" id="settings-add" />
-        </center>
-    </div>
-    -->
 
 	<?php
-		$json = json_decode(file_get_contents("config.json"));
-		for ($x = 0; $x < $json->count; $x++) {
-			echo '<div class="box" id="box' . $x . '" style="top: ' . $json->{"box$x"}->top . 'px; left: ' . $json->{"box$x"}->left . 'px; width: ' . $json->{"box$x"}->width . 'px; height: ' . $json->{"box$x"}->height . 'px;">';
+		//$json = json_decode(file_get_contents("config2.json"));
+		$conf = new config("config.json");
+		
+		
+		// print all the boxes
+		for ($x = 0; $x < $conf->getBoxLength(); $x++) {
+			echo '<div class="box" id="box' . $x . '">';
 			
-			switch ($json->{"box$x"}->type) {
-				case "time": 	if ($json->{"box$x"}->details == "analog") {
+			// this adjusts the position and size at first draw
+			echo '<script type="text/javascript">';
+			if ($conf->getRatio() == "16:9") {
+			echo '	var unit = Math.min(window.innerHeight/9, window.innerWidth/16);
+					';
+			} else {
+			echo '	var unit = Math.min(window.innerHeight/3, window.innerWidth/4);
+					';	
+			}
+			echo '	// set width/height
+					var w = unit * ' . $conf->getBoxWidth($x) . ';
+					var h = unit * ' . $conf->getBoxHeight($x) . ';
+					$("#box' . $x . '").css("width", w);
+					$("#box' . $x . '").css("height", h);
+					
+					// set left/top
+					var l = unit * ' . ($conf->getBoxCol($x)-1) . ';
+					var t = unit * ' . ($conf->getBoxRow($x)-1) . ';
+					$("#box' . $x . '").css("left", l);
+					$("#box' . $x . '").css("top", t);
+					';
+			echo '</script>';
+			
+			// draw the chart
+			switch ($conf->getBoxType($x)) {
+				case "clock": 	if ($conf->getBoxDetails($x) == "analog") {
 									echo ' 	<div class="analog_clock">
 												<canvas id="analog_clock" style="width: 100%; height: 100%;"></canvas>
 											</div>';
@@ -213,13 +242,77 @@
 								}
 								break;
 								
-				case "json": 	$obj = new chart($json->{"box$x"}->details);
-								echo $obj->drawChart($json->animation);
+				case "json": 	$obj = new chart($conf->getBoxDetails($x));
+								echo $obj->drawChart($conf->getAnimationStatus());
 								break;
 			}
 			
 			echo "</div>";
-		} 
+		}
+				
+		
+		// now create global updating js script:
+		echo '<script type="text/javascript">
+				$(window).on("resize", function() { updateCharts(); });
+				
+				function updateCharts(){
+		  		';
+		
+		// calculate the size of one unit:
+		if ($conf->getRatio() == "16:9") {
+		echo '	var unit = Math.min(window.innerHeight/9, window.innerWidth/16);
+				';
+		} else {
+		echo '	var unit = Math.min(window.innerHeight/3, window.innerWidth/4);
+				';	
+		}
+		
+		for ($x = 0; $x < $conf->getBoxLength(); $x++) {
+			echo '	// set width/height
+					var w = unit * ' . $conf->getBoxWidth($x) . ';
+					var h = unit * ' . $conf->getBoxHeight($x) . ';
+					$("#box' . $x . '").css("width", w);
+					$("#box' . $x . '").css("height", h);
+					
+					// set left/top
+					var l = unit * ' . ($conf->getBoxCol($x)-1) . ';
+					var t = unit * ' . ($conf->getBoxRow($x)-1) . ';
+					$("#box' . $x . '").css("left", l);
+					$("#box' . $x . '").css("top", t);
+					';
+		}
+			
+		echo ' 	};
+				</script>';
 	?>
+    
+    <script type="text/javascript">
+
+		function toggleFullScreenMode() {
+			if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement) {
+				if (document.documentElement.requestFullscreen) {
+					document.documentElement.requestFullscreen();
+				} else if (document.documentElement.mozRequestFullScreen) {
+					document.documentElement.mozRequestFullScreen();
+				} else if (document.documentElement.webkitRequestFullscreen) {
+					document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+				}
+				
+				$("#fullscreen").attr("src", "icons/fullscreen_off.png");
+			} else {
+				if (document.cancelFullScreen) {
+					document.cancelFullScreen();
+				} else if (document.mozCancelFullScreen) {
+					document.mozCancelFullScreen();
+				} else if (document.webkitCancelFullScreen) {
+					document.webkitCancelFullScreen();
+				}
+				
+				$("#fullscreen").attr("src", "icons/fullscreen_on.png");
+			}
+		}
+		
+    	$("#fullscreen").on('click', function() { toggleFullScreenMode(); updateCharts(); });
+    </script>
 </body>
 </html>

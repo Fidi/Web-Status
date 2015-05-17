@@ -1,14 +1,14 @@
 // JS Chart library
 
 
-(function() {
-  var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-                              window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-  window.requestAnimationFrame = requestAnimationFrame;
-})();
+// CONFIGURATION SECTION
+// CHANGE BASIC SETTINGS IN HERE
 
-
+// color palette
 var colors = ["#2e89f9", "#ee2e22", "#fed105", "#31e618", "#f48026", "#97015e"];
+
+// line width
+var line = 4;
 
 
 // class wrapper
@@ -194,21 +194,21 @@ var Chart = Class({
 		ctx.font = "bold 20px Helvetica";
 		var units = this.getUnitSuffix();
 		if (units != "") { units = " (in " + units + ")"; }
-		ctx.fillText(this.getChartTitle().toUpperCase(), 10, 25);
+		ctx.fillText(this.getChartTitle().toUpperCase(), 20, 30);
 		
-		var marginLeft = 15 + ctx.measureText(this.getChartTitle().toUpperCase()).width; 
+		var marginLeft = 25 + ctx.measureText(this.getChartTitle().toUpperCase()).width; 
 		ctx.font = "bold 15px Helvetica";
 		var unitSuffix = this.getUnitSuffix();
 		if (unitSuffix != "") { unitSuffix = " (in " + unitSuffix + ")"; }
-		ctx.fillText(unitSuffix, marginLeft, 24);
+		ctx.fillText(unitSuffix, marginLeft, 28);
 		
 		// draw sequence titles
-		var rightDistance = 10;
+		var rightDistance = 20;
 		for (var i = this.getSequenceCount()-1; i >= 0; i--) {
 			ctx.fillStyle = colors[i];
 			ctx.font = "bold 15px Helvetica";
 			ctx.textAlign = "end"; 
-			ctx.fillText(this.getSequenceTitle(i), canvasWidth - rightDistance, 25);
+			ctx.fillText(this.getSequenceTitle(i), canvasWidth - rightDistance, 28);
 			rightDistance += (ctx.measureText(this.getSequenceTitle(i)).width + 10);
 		}
 		
@@ -261,22 +261,25 @@ var Chart = Class({
 			// add footer captions
 			var totalTitleWidth = 0;
 			for (var i = 0; i < this.getSequenceLength()-1; i++) {
-				totalTitleWidth += ctx.measureText(this.getDatapointTitle(0, i)).width;
+				totalTitleWidth += ctx.measureText(this.getDatapointTitle(0, i)).width + 5;
 			}
-			var diffValue = 1;
-			while (totalTitleWidth >= (canvasWidth - 60)-50) {
-				totalTitleWidth = totalTitleWidth/2;
-				diffValue = diffValue * 2;
+			var diffValue = 0;
+			var doesFit = false;
+			while (!doesFit) { 
+				diffValue++;
+				if ((totalTitleWidth/diffValue) <= (canvasWidth - 60)-20) {
+					doesFit = true;	
+				}
 			}
 			var stepCounts = this.getSequenceLength()/diffValue;
-			var titleMargin = (canvasWidth - 60 - totalTitleWidth)/stepCounts;
+			var titleMargin = (canvasWidth - 80 - (totalTitleWidth/diffValue))/stepCounts;
 
 			for (var i = 0; i < stepCounts; i++){
 				ctx.fillStyle = "#666";
 				ctx.font = "bold 10px Helvetica";
 				ctx.textAlign = "left"; 
 				var text = this.getDatapointTitle(0, i*diffValue);
-				ctx.fillText(text, 50 + (i * (ctx.measureText(text).width + titleMargin)), canvasHeight - 10);
+				ctx.fillText(text, 50 + (i*5) + (i * (ctx.measureText(text).width + titleMargin)), canvasHeight - 10);
 			}
 		}
 	},
@@ -300,7 +303,7 @@ var Chart = Class({
 							// create an array
 							var s = [];
 							for (var i = this.getSequenceCount()-1;  i >= 0; i--) {
-								var startLeft = 50;
+								var startLeft = 55;
 								for (var j = 0; j < this.getSequenceLength()-1; j++) {
 									var x = {
 										left: startLeft,
@@ -315,12 +318,13 @@ var Chart = Class({
 							}	
 							
 							var curNum = 0;
-							ctx.lineWidth = 3;
+							ctx.lineWidth = line;
 							
 							// draw the lines
 							function animateLines(c) {
 								ctx.strokeStyle = s[curNum].color;
 								ctx.beginPath();
+								ctx.lineCap = "round";
 								ctx.moveTo(s[curNum].left, s[curNum].value);
 								ctx.lineTo(s[curNum].left + widthDiff, s[curNum].next);
 								ctx.stroke();
@@ -393,7 +397,6 @@ var Chart = Class({
 							break;	
 							
 			case "pie": 	var radius = Math.min(canvasHeight, canvasWidth)/4;
-							var lineWidth = radius-20;
 							
 							// calculate total number
 							var total = 0;
@@ -414,7 +417,7 @@ var Chart = Class({
 							
 							var endPercent = 101;
 							var curPerc = 0;
-							ctx.lineWidth = lineWidth;
+							ctx.lineWidth = radius-20;
 							
 							// and draw the pie with or without animating it
 							function animatePie(c) {
@@ -452,3 +455,11 @@ var Chart = Class({
         return "Chart class " + this.getChartTitle();
     }
 }); 
+
+
+
+(function() {
+  var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                              window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+  window.requestAnimationFrame = requestAnimationFrame;
+})();
