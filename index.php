@@ -1,3 +1,8 @@
+<?php 
+    header ('Content-type: text/html; charset=utf-8'); 
+    require 'src/chart.php';
+?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -10,12 +15,6 @@
     <link href="src/style.css" rel="stylesheet" />
     <script src="src/clock.js"></script>
     <script src="src/chart.js"></script>
-  
-    
-    <?php 
-        header ('Content-type: text/html; charset=utf-8'); 
-        require 'src/chart.php';
-    ?>
     
     <script type="text/javascript">
 		$(document).ready(function() {
