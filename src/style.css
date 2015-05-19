@@ -10,6 +10,26 @@ body {
 	font-family: Helvetica, Arial, sans-serif;
 }
 
+/* full screen fix color fix */
+html:-moz-full-screen {
+    background: #333;
+}
+ 
+html:-webkit-full-screen {
+    background: #333;
+}
+ 
+html:-ms-fullscreen {
+    background: #3333;
+    width: 100%;
+}
+ 
+html:fullscreen {
+    background: #333;
+}
+
+
+
 .box {
 	position: absolute; 
 	

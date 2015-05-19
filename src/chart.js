@@ -11,6 +11,7 @@ var colors = ["#2e89f9", "#ee2e22", "#fed105", "#31e618", "#f48026", "#97015e"];
 var line = 4;
 
 
+
 // class wrapper
 var Class = function(methods) {   
     var c = function() {    
@@ -41,6 +42,7 @@ var Chart = Class({
 	getJSON: function() {
 		var result = null;
 		$.ajax({
+			type: "GET",
 			url: this.jsonPath,
 			async: false,
 			dataType: "json",

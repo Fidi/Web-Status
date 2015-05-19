@@ -12,7 +12,7 @@
     },
     {
       "type": "json",
-      "details": "sample/load.json",
+      "details": "data/load.json",
       "col": 4,
       "row": 1,
       "height": 3,
@@ -20,7 +20,7 @@
     },
     {
       "type": "json",
-      "details": "sample/usage.json",
+      "details": "data/usage.json",
       "col": 11,
       "row": 1,
       "height": 6,
@@ -28,7 +28,7 @@
     },
     {
       "type": "json",
-      "details": "sample/network.json",
+      "details": "data/network.json",
       "col": 1,
       "row": 4,
       "height": 3,
@@ -36,7 +36,7 @@
     },
     {
       "type": "json",
-      "details": "sample/cpu_temp.json",
+      "details": "data/cpu_temp.json",
       "col": 1,
       "row": 7,
       "height": 3,
@@ -44,7 +44,7 @@
     },
     {
       "type": "json",
-      "details": "sample/memory.json",
+      "details": "data/memory.json",
       "col": 9,
       "row": 7,
       "height": 3,

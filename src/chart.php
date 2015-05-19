@@ -123,6 +123,21 @@
 			return $int*1000;
 		}
 		
+		private function downloadRemoteFile($url) {
+			$fp = fopen ("data/" . basename($url), 'w+');
+			$ch = curl_init();
+			curl_setopt( $ch, CURLOPT_URL, $url );
+			curl_setopt( $ch, CURLOPT_BINARYTRANSFER, true );
+			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, false );
+			curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+			
+			curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );
+			curl_setopt( $ch, CURLOPT_FILE, $fp );
+			curl_exec( $ch );
+			curl_close( $ch );
+			fclose( $fp );
+		}
+		
 		
 		
 		// public section
@@ -131,7 +146,14 @@
 				debug_to_console("The class could not be created. No filename submitted.");
 			} else {
 				debug_to_console("The class was initiated with parameter \"" . $filename .  "\".");
-				$this->input = $filename;
+				if (filter_var($filename, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
+					debug_to_console("Download required");
+					$this->downloadRemoteFile($filename);
+					$this->input = "data/" . basename($filename);
+					debug_to_console($this->input);
+				} else {
+					$this->input = $filename;
+				}
 				$this->json = decodeJSON($this->input);
 			}
   		}	
